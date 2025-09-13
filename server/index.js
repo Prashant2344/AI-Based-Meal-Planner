@@ -119,31 +119,47 @@ app.post('/api/generate-meal-plan', async (req, res) => {
       allergies = []
     } = req.body;
     
-    const systemPrompt = `You are a professional nutritionist and meal planning expert. Create detailed, practical meal plans that are:
+    const systemPrompt = `You are a professional nutritionist and meal planning expert specializing in Nepalese cuisine and locally available ingredients in Nepal. Create detailed, practical meal plans that are:
+- Based on traditional Nepalese dishes and cooking methods
+- Use ingredients commonly available in Nepal (rice, lentils, vegetables, spices, etc.)
+- Include popular Nepalese foods like dal bhat, momo, sel roti, gundruk, etc.
 - Nutritionally balanced with proper macronutrient distribution
-- Realistic and easy to follow
-- Include specific portion sizes and cooking methods
-- Consider the user's dietary preferences and restrictions
+- Realistic and easy to follow for Nepalese families
+- Include specific portion sizes and traditional cooking methods
+- Consider seasonal availability of ingredients in Nepal
 - Provide accurate calorie and macro information
 
 Always respond with valid JSON format.`;
 
-    const userPrompt = `Create a 7-day meal plan for a ${age}-year-old ${gender} who is ${activityLevel}.
+    const userPrompt = `Create a 7-day Nepalese meal plan for a ${age}-year-old ${gender} who is ${activityLevel}.
 
 User Details:
 - Weight: ${weight} kg
 - Height: ${height} cm
 - Target daily calories: ${dailyCalories}
-- Dietary preferences: ${dietaryPreferences.join(', ') || 'None specified'}
+- Dietary preferences: ${dietaryPreferences.join(', ') || 'Traditional Nepalese cuisine'}
 - Allergies: ${allergies.join(', ') || 'None'}
 
-Please provide a detailed 7-day meal plan with:
-1. Breakfast, Lunch, Snack, and Dinner for each day
-2. Specific portion sizes (in grams/cups)
-3. Cooking methods
-4. Calorie count per meal
-5. Macronutrient breakdown (protein, carbs, fats in grams)
-6. Daily totals for calories and macros
+Please provide a detailed 7-day meal plan focusing on:
+1. Traditional Nepalese dishes (dal bhat, momo, sel roti, gundruk, etc.)
+2. Locally available ingredients in Nepal (rice, lentils, vegetables, spices, etc.)
+3. Seasonal and affordable ingredients
+4. Traditional cooking methods (pressure cooking, steaming, etc.)
+
+For each day, include:
+- Breakfast: Traditional Nepalese breakfast items
+- Lunch: Main meal with dal bhat or similar
+- Snack: Local fruits, nuts, or traditional snacks
+- Dinner: Light dinner with traditional dishes
+
+Each meal should specify:
+- Traditional Nepalese dish names
+- Ingredients commonly found in Nepal
+- Portion sizes in local measurements (cups, pieces, etc.)
+- Traditional cooking methods
+- Calorie count per meal
+- Macronutrient breakdown (protein, carbs, fats in grams)
+- Daily totals for calories and macros
 
 Format the response as JSON with this structure:
 {
@@ -188,7 +204,7 @@ Each meal should have: name, ingredients, portions, calories, protein, carbs, fa
         throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
-      // Fallback: create a basic meal plan structure
+      // Fallback: create a basic Nepalese meal plan structure
       mealPlan = {
         dailyTargets: {
           calories: dailyCalories,
@@ -199,50 +215,50 @@ Each meal should have: name, ingredients, portions, calories, protein, carbs, fa
         mealPlan: {
           day1: {
             breakfast: {
-              name: "Scrambled Eggs with Toast",
-              ingredients: "2 eggs, 2 slices whole grain bread, 1 banana",
-              portions: "2 eggs, 2 slices, 1 medium",
+              name: "Sel Roti with Tea",
+              ingredients: "2 sel roti, 1 cup milk tea, 1 banana",
+              portions: "2 pieces, 1 cup, 1 medium",
               calories: 400,
-              protein: 25,
-              carbs: 40,
-              fats: 12,
-              instructions: "Scramble eggs in non-stick pan, toast bread, serve with banana"
+              protein: 15,
+              carbs: 65,
+              fats: 8,
+              instructions: "Prepare sel roti traditionally, make milk tea, serve with banana"
             },
             lunch: {
-              name: "Grilled Chicken with Rice",
-              ingredients: "120g chicken breast, 1 cup brown rice, mixed vegetables",
-              portions: "120g, 1 cup, 1 cup",
+              name: "Dal Bhat with Tarkari",
+              ingredients: "1 cup rice, 1 cup dal, mixed vegetables, pickle",
+              portions: "1 cup, 1 cup, 1 cup, 2 tbsp",
               calories: 550,
-              protein: 35,
-              carbs: 60,
-              fats: 15,
-              instructions: "Grill chicken, cook rice, steam vegetables"
+              protein: 25,
+              carbs: 85,
+              fats: 12,
+              instructions: "Cook rice, prepare dal with spices, steam vegetables, serve with pickle"
             },
             snack: {
-              name: "Apple with Almonds",
-              ingredients: "1 medium apple, 10 almonds",
-              portions: "1 medium, 10 pieces",
+              name: "Chiura with Yogurt",
+              ingredients: "1 cup chiura, 1/2 cup yogurt, 1 tsp sugar",
+              portions: "1 cup, 1/2 cup, 1 tsp",
               calories: 200,
-              protein: 5,
-              carbs: 20,
-              fats: 10,
-              instructions: "Wash apple, serve with almonds"
+              protein: 8,
+              carbs: 35,
+              fats: 3,
+              instructions: "Mix chiura with yogurt and sugar, serve chilled"
             },
             dinner: {
-              name: "Grilled Fish with Sweet Potato",
-              ingredients: "150g fish fillet, 1 medium sweet potato, spinach",
-              portions: "150g, 1 medium, 1 cup",
+              name: "Momo with Soup",
+              ingredients: "8 pieces momo, vegetable soup, chutney",
+              portions: "8 pieces, 1 cup, 2 tbsp",
               calories: 600,
-              protein: 35,
-              carbs: 45,
+              protein: 30,
+              carbs: 70,
               fats: 15,
-              instructions: "Grill fish, bake sweet potato, sauté spinach"
+              instructions: "Steam momo, prepare soup, serve with chutney"
             },
             dailyTotal: {
               calories: 1750,
-              protein: 100,
-              carbs: 165,
-              fats: 52
+              protein: 78,
+              carbs: 255,
+              fats: 38
             }
           }
         }

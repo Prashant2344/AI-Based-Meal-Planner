@@ -13,6 +13,50 @@ const MealPlan: React.FC<MealPlanProps> = ({ mealPlan, userInfo, onGenerateChart
   const [selectedDay, setSelectedDay] = useState('day1');
   const [completedMeals, setCompletedMeals] = useState<Set<string>>(new Set());
 
+  // Helper function to safely render meal fields that might be strings, objects, or arrays
+  const renderMealField = (field: any): string => {
+    if (typeof field === 'string') {
+      return field;
+    }
+    
+    if (Array.isArray(field)) {
+      // If it's an array of objects with item/portion structure
+      if (field.length > 0 && typeof field[0] === 'object' && field[0].item && field[0].portion) {
+        return field.map(item => `${item.item}: ${item.portion}`).join(', ');
+      }
+      // If it's an array of strings
+      return field.join(', ');
+    }
+    
+    if (typeof field === 'object' && field !== null) {
+      // If it's an object with item/portion structure
+      if (field.item && field.portion) {
+        return `${field.item}: ${field.portion}`;
+      }
+      
+      // If it's a portions object with ingredient: amount pairs
+      if (field.flour || field.potatoes || field.turmeric || field.cumin || field.salt || field.oil) {
+        return Object.entries(field)
+          .map(([ingredient, amount]) => `${ingredient}: ${amount}`)
+          .join(', ');
+      }
+      
+      // For other objects, try to format as key: value pairs
+      const entries = Object.entries(field);
+      if (entries.length > 0) {
+        return entries
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+      }
+      
+      // Fallback: stringify the object
+      return JSON.stringify(field);
+    }
+    
+    // Fallback for any other type
+    return String(field || '');
+  };
+
   const days = [
     { key: 'day1', name: 'Sunday', short: 'Sun' },
     { key: 'day2', name: 'Monday', short: 'Mon' },
@@ -151,6 +195,12 @@ const MealPlan: React.FC<MealPlanProps> = ({ mealPlan, userInfo, onGenerateChart
               {Object.entries(currentDayPlan).map(([mealType, meal]) => {
                 if (mealType === 'dailyTotal') return null;
                 
+                // Safety check: ensure meal is an object with expected properties
+                if (!meal || typeof meal !== 'object') {
+                  console.error(`Invalid meal data for ${mealType}:`, meal);
+                  return null;
+                }
+                
                 const mealKey = `${selectedDay}-${mealType}`;
                 const isCompleted = completedMeals.has(mealKey);
                 
@@ -185,12 +235,14 @@ const MealPlan: React.FC<MealPlanProps> = ({ mealPlan, userInfo, onGenerateChart
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-gray-900 mb-1">{meal.name}</h4>
-                        <p className="text-sm text-gray-600">{meal.ingredients}</p>
+                        <p className="text-sm text-gray-600">
+                          {renderMealField(meal.ingredients)}
+                        </p>
                       </div>
 
                       <div className="text-sm text-gray-600">
-                        <p><strong>Portions:</strong> {meal.portions}</p>
-                        <p><strong>Instructions:</strong> {meal.instructions}</p>
+                        <p><strong>Portions:</strong> {renderMealField(meal.portions)}</p>
+                        <p><strong>Instructions:</strong> {renderMealField(meal.instructions)}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 text-sm">

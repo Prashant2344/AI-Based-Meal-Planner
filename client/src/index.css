@@ -34,3 +34,44 @@ code {
   transform: translateY(-5px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
+
+/* Ensure buttons are visible and properly styled */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Ensure primary colors are available */
+.bg-primary-600 {
+  background-color: #2563eb;
+}
+
+.bg-primary-700 {
+  background-color: #1d4ed8;
+}
+
+.bg-primary-400 {
+  background-color: #60a5fa;
+}
+
+.text-primary-600 {
+  color: #2563eb;
+}
+
+.bg-secondary-600 {
+  background-color: #c026d3;
+}
+
+.bg-secondary-700 {
+  background-color: #a21caf;
+}

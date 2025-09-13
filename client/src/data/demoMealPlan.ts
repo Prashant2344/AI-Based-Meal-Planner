@@ -10,98 +10,98 @@ export const demoMealPlan: MealPlan = {
   mealPlan: {
     day1: {
       breakfast: {
-        name: "Scrambled Eggs with Toast",
-        ingredients: "2 eggs, 2 slices whole grain bread, 1 banana, 1 tsp butter",
-        portions: "2 eggs, 2 slices, 1 medium, 1 tsp",
+        name: "Sel Roti with Tea",
+        ingredients: "2 sel roti, 1 cup milk tea, 1 banana, 1 tsp sugar",
+        portions: "2 pieces, 1 cup, 1 medium, 1 tsp",
         calories: 400,
-        protein: 25,
-        carbs: 40,
-        fats: 12,
-        instructions: "Scramble eggs in non-stick pan with butter, toast bread, serve with banana"
+        protein: 15,
+        carbs: 65,
+        fats: 8,
+        instructions: "Prepare sel roti traditionally, make milk tea with sugar, serve with banana"
       },
       lunch: {
-        name: "Grilled Chicken with Rice",
-        ingredients: "120g chicken breast, 1 cup brown rice, mixed vegetables, 1 tsp olive oil",
-        portions: "120g, 1 cup, 1 cup, 1 tsp",
+        name: "Dal Bhat with Tarkari",
+        ingredients: "1 cup rice, 1 cup dal, mixed vegetables, pickle, 1 tsp ghee",
+        portions: "1 cup, 1 cup, 1 cup, 2 tbsp, 1 tsp",
         calories: 550,
-        protein: 35,
-        carbs: 60,
-        fats: 15,
-        instructions: "Season and grill chicken, cook rice, steam vegetables with olive oil"
+        protein: 25,
+        carbs: 85,
+        fats: 12,
+        instructions: "Cook rice, prepare dal with spices, steam vegetables, serve with pickle and ghee"
       },
       snack: {
-        name: "Apple with Almonds",
-        ingredients: "1 medium apple, 10 almonds",
-        portions: "1 medium, 10 pieces",
+        name: "Chiura with Yogurt",
+        ingredients: "1 cup chiura, 1/2 cup yogurt, 1 tsp sugar",
+        portions: "1 cup, 1/2 cup, 1 tsp",
         calories: 200,
-        protein: 5,
-        carbs: 20,
-        fats: 10,
-        instructions: "Wash apple, serve with almonds"
+        protein: 8,
+        carbs: 35,
+        fats: 3,
+        instructions: "Mix chiura with yogurt and sugar, serve chilled"
       },
       dinner: {
-        name: "Grilled Fish with Sweet Potato",
-        ingredients: "150g fish fillet, 1 medium sweet potato, spinach, 1 tsp olive oil",
-        portions: "150g, 1 medium, 1 cup, 1 tsp",
+        name: "Momo with Soup",
+        ingredients: "8 pieces momo, vegetable soup, chutney, 1 tsp oil",
+        portions: "8 pieces, 1 cup, 2 tbsp, 1 tsp",
         calories: 600,
-        protein: 35,
-        carbs: 45,
+        protein: 30,
+        carbs: 70,
         fats: 15,
-        instructions: "Season and grill fish, bake sweet potato, sauté spinach with olive oil"
+        instructions: "Steam momo, prepare soup, serve with chutney"
       },
       dailyTotal: {
         calories: 1750,
-        protein: 100,
-        carbs: 165,
-        fats: 52
+        protein: 78,
+        carbs: 255,
+        fats: 38
       }
     },
     day2: {
       breakfast: {
-        name: "Oatmeal with Peanut Butter",
-        ingredients: "1 cup oats, 1 cup low-fat milk, 1 tbsp peanut butter, 1 orange",
-        portions: "1 cup, 1 cup, 1 tbsp, 1 medium",
+        name: "Chiya with Roti",
+        ingredients: "1 cup chiya, 2 pieces roti, 1 boiled egg, 1 tsp sugar",
+        portions: "1 cup, 2 pieces, 1 egg, 1 tsp",
         calories: 420,
-        protein: 20,
-        carbs: 45,
-        fats: 15,
-        instructions: "Cook oats with milk, stir in peanut butter, serve with orange"
-      },
-      lunch: {
-        name: "Turkey Wrap",
-        ingredients: "Whole grain wrap, 100g turkey slices, lettuce, tomato, 1 tsp mayo",
-        portions: "1 wrap, 100g, 1 cup, 1 medium, 1 tsp",
-        calories: 480,
-        protein: 30,
+        protein: 18,
         carbs: 50,
         fats: 12,
-        instructions: "Layer ingredients in wrap, roll tightly, cut in half"
+        instructions: "Make chiya with milk and sugar, serve with roti and boiled egg"
+      },
+      lunch: {
+        name: "Thukpa with Vegetables",
+        ingredients: "1 cup thukpa noodles, mixed vegetables, 1 egg, 1 tsp oil",
+        portions: "1 cup, 1 cup, 1 egg, 1 tsp",
+        calories: 480,
+        protein: 22,
+        carbs: 65,
+        fats: 10,
+        instructions: "Cook thukpa noodles with vegetables, add beaten egg, season with spices"
       },
       snack: {
-        name: "Greek Yogurt with Berries",
-        ingredients: "1 cup Greek yogurt, 1/2 cup mixed berries",
-        portions: "1 cup, 1/2 cup",
+        name: "Gundruk with Chiura",
+        ingredients: "1/2 cup gundruk, 1/2 cup chiura, 1 tsp oil",
+        portions: "1/2 cup, 1/2 cup, 1 tsp",
         calories: 180,
-        protein: 15,
-        carbs: 20,
-        fats: 5,
-        instructions: "Mix yogurt with berries, serve chilled"
+        protein: 8,
+        carbs: 25,
+        fats: 6,
+        instructions: "Mix gundruk with chiura, add oil and spices, serve"
       },
       dinner: {
-        name: "Stir-fried Prawns with Quinoa",
-        ingredients: "150g prawns, 1 cup quinoa, mixed vegetables, 1 tsp sesame oil",
-        portions: "150g, 1 cup, 1 cup, 1 tsp",
+        name: "Kwati with Rice",
+        ingredients: "1 cup mixed beans, 1 cup rice, vegetables, 1 tsp ghee",
+        portions: "1 cup, 1 cup, 1 cup, 1 tsp",
         calories: 580,
-        protein: 40,
-        carbs: 50,
-        fats: 18,
-        instructions: "Stir-fry prawns and vegetables, cook quinoa separately, combine"
+        protein: 28,
+        carbs: 85,
+        fats: 12,
+        instructions: "Cook mixed beans with vegetables, serve with rice and ghee"
       },
       dailyTotal: {
         calories: 1660,
-        protein: 105,
-        carbs: 165,
-        fats: 50
+        protein: 76,
+        carbs: 225,
+        fats: 40
       }
     },
     day3: {
