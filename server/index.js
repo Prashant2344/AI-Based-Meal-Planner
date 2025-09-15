@@ -119,69 +119,94 @@ app.post('/api/generate-meal-plan', async (req, res) => {
       allergies = []
     } = req.body;
     
-    const systemPrompt = `You are a professional nutritionist and meal planning expert specializing in Nepalese cuisine and locally available ingredients in Nepal. Create detailed, practical meal plans that are:
-- Based on traditional Nepalese dishes and cooking methods
-- Use ingredients commonly available in Nepal (rice, lentils, vegetables, spices, etc.)
-- Include popular Nepalese foods like dal bhat, momo, sel roti, gundruk, etc.
-- Nutritionally balanced with proper macronutrient distribution
-- Realistic and easy to follow for Nepalese families
-- Include specific portion sizes and traditional cooking methods
-- Consider seasonal availability of ingredients in Nepal
-- Provide accurate calorie and macro information
+    const systemPrompt = `You are a professional nutritionist and meal planning expert specializing in healthy Nepalese cuisine. Create detailed, practical meal plans that are:
 
-Always respond with valid JSON format.`;
+CRITICAL REQUIREMENTS:
+- MUST provide accurate calorie counts that match the daily target (within 50 calories)
+- Focus on HEALTHY traditional Nepalese dishes with proper nutritional balance
+- Prioritize whole grains, lean proteins, and fresh vegetables
+- Use authentic Nepalese ingredients available in Nepal
+- Include specific portion sizes in local measurements (cups, pieces, tablespoons)
+- Ensure proper macronutrient distribution (protein 20-25%, carbs 45-50%, fats 25-30%)
+- Emphasize nutrient-dense foods over calorie-dense options
+- Use healthy cooking methods (steaming, boiling, pressure cooking, minimal oil)
+- Make meals realistic for daily preparation by Nepalese families
+- Avoid fried foods, excessive oil, and processed ingredients
 
-    const userPrompt = `Create a 7-day Nepalese meal plan for a ${age}-year-old ${gender} who is ${activityLevel}.
+HEALTHY NEPALESE FOODS TO FOCUS ON:
+- Whole grains: brown rice, quinoa, millet, buckwheat
+- Lean proteins: dal (lentils), beans, lean meat, fish, eggs
+- Fresh vegetables: leafy greens, cruciferous vegetables, root vegetables
+- Healthy fats: nuts, seeds, ghee (in moderation), coconut oil
+- Traditional healthy dishes: dal bhat, vegetable curries, steamed vegetables, soups
 
-User Details:
+NUTRITIONAL ACCURACY:
+- Each meal must have precise calorie counts
+- Macronutrient breakdown must be realistic and accurate
+- Daily totals must match or be very close to the target calories
+- Use traditional portion sizes that are commonly consumed in Nepal
+- Ensure adequate fiber, vitamins, and minerals
+
+Always respond with valid JSON format only.`;
+
+    const userPrompt = `Create a 7-day HEALTHY NEPALESE meal plan for a ${age}-year-old ${gender} who is ${activityLevel}.
+
+USER DETAILS:
 - Weight: ${weight} kg
 - Height: ${height} cm
-- Target daily calories: ${dailyCalories}
-- Dietary preferences: ${dietaryPreferences.join(', ') || 'Traditional Nepalese cuisine'}
+- Target daily calories: ${dailyCalories} (MUST be accurate within 50 calories)
+- Dietary preferences: ${dietaryPreferences.join(', ') || 'Healthy traditional Nepalese cuisine'}
 - Allergies: ${allergies.join(', ') || 'None'}
 
-Please provide a detailed 7-day meal plan focusing on:
-1. Traditional Nepalese dishes (dal bhat, momo, sel roti, gundruk, etc.)
-2. Locally available ingredients in Nepal (rice, lentils, vegetables, spices, etc.)
-3. Seasonal and affordable ingredients
-4. Traditional cooking methods (pressure cooking, steaming, etc.)
+HEALTHY MEAL PLAN REQUIREMENTS:
+1. Focus on NUTRITIOUS traditional Nepalese dishes: dal bhat, vegetable curries, steamed vegetables, soups, whole grain porridge
+2. Use healthy ingredients: brown rice, quinoa, lentils (masoor, moong, chana), fresh vegetables (saag, gobi, aloo), lean proteins
+3. Emphasize whole grains, lean proteins, and fresh vegetables
+4. Ensure calorie accuracy - daily total must be ${dailyCalories} ± 50 calories
+5. Use realistic portion sizes commonly consumed in Nepal
+6. AVOID fried foods, excessive oil, processed foods, and unhealthy snacks
 
-For each day, include:
-- Breakfast: Traditional Nepalese breakfast items
-- Lunch: Main meal with dal bhat or similar
-- Snack: Local fruits, nuts, or traditional snacks
-- Dinner: Light dinner with traditional dishes
+DAILY STRUCTURE:
+- Breakfast: Healthy traditional items (whole grain porridge, boiled eggs, fresh fruits, herbal tea)
+- Lunch: Main meal (dal bhat with steamed vegetables, brown rice, lean protein)
+- Snack: Fresh fruits, nuts, or healthy traditional snacks
+- Dinner: Light healthy meal (vegetable soup, steamed vegetables, lean protein)
 
-Each meal should specify:
-- Traditional Nepalese dish names
-- Ingredients commonly found in Nepal
-- Portion sizes in local measurements (cups, pieces, etc.)
-- Traditional cooking methods
-- Calorie count per meal
+HEALTHY NEPALESE FOODS TO INCLUDE:
+- Whole grains: brown rice, quinoa, millet, buckwheat
+- Lean proteins: dal (lentils), beans, lean meat, fish, eggs
+- Fresh vegetables: saag, gobi, aloo, carrots, beans
+- Healthy fats: nuts, seeds, ghee (in moderation)
+- Traditional healthy dishes: dal bhat, vegetable curries, steamed vegetables, soups
+
+EACH MEAL MUST INCLUDE:
+- Healthy Nepalese dish name
+- Nutritious ingredients available in Nepal
+- Portion sizes in local measurements
+- Accurate calorie count
 - Macronutrient breakdown (protein, carbs, fats in grams)
-- Daily totals for calories and macros
+- Healthy cooking instructions (steaming, boiling, minimal oil)
 
-Format the response as JSON with this structure:
+RESPONSE FORMAT (JSON only):
 {
   "dailyTargets": {
     "calories": ${dailyCalories},
-    "protein": "130-150g",
-    "carbs": "180-200g", 
-    "fats": "60-70g"
+    "protein": "calculated based on weight",
+    "carbs": "calculated based on calories", 
+    "fats": "calculated based on calories"
   },
   "mealPlan": {
     "day1": {
-      "breakfast": {...},
+      "breakfast": {"name": "Healthy dish", "ingredients": "list", "portions": "specific", "calories": number, "protein": number, "carbs": number, "fats": number, "instructions": "healthy cooking method"},
       "lunch": {...},
       "snack": {...},
       "dinner": {...},
-      "dailyTotal": {...}
-    },
-    ... (for all 7 days)
+      "dailyTotal": {"calories": number, "protein": number, "carbs": number, "fats": number}
+    }
   }
 }
 
-Each meal should have: name, ingredients, portions, calories, protein, carbs, fats, instructions.`;
+IMPORTANT: Focus on healthy, nutritious Nepalese cuisine. Avoid fried foods, excessive oil, and processed ingredients.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -204,61 +229,66 @@ Each meal should have: name, ingredients, portions, calories, protein, carbs, fa
         throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
-      // Fallback: create a basic Nepalese meal plan structure
+      // Fallback: create a healthy Nepalese meal plan structure
+      const targetCalories = dailyCalories || 2000;
+      const proteinTarget = Math.round(weight * 1.2); // 1.2g per kg body weight
+      const carbTarget = Math.round(targetCalories * 0.5 / 4); // 50% of calories from carbs
+      const fatTarget = Math.round(targetCalories * 0.25 / 9); // 25% of calories from fats
+      
       mealPlan = {
         dailyTargets: {
-          calories: dailyCalories,
-          protein: "130-150g",
-          carbs: "180-200g",
-          fats: "60-70g"
+          calories: targetCalories,
+          protein: `${proteinTarget}g`,
+          carbs: `${carbTarget}g`,
+          fats: `${fatTarget}g`
         },
         mealPlan: {
           day1: {
             breakfast: {
-              name: "Sel Roti with Tea",
-              ingredients: "2 sel roti, 1 cup milk tea, 1 banana",
-              portions: "2 pieces, 1 cup, 1 medium",
-              calories: 400,
-              protein: 15,
-              carbs: 65,
-              fats: 8,
-              instructions: "Prepare sel roti traditionally, make milk tea, serve with banana"
+              name: "Quinoa Porridge with Nuts and Fruits",
+              ingredients: "1/2 cup quinoa, 1 cup milk, 1 banana, 10 almonds, 1 tsp honey",
+              portions: "1/2 cup, 1 cup, 1 medium, 10 pieces, 1 tsp",
+              calories: Math.round(targetCalories * 0.25),
+              protein: Math.round(proteinTarget * 0.2),
+              carbs: Math.round(carbTarget * 0.25),
+              fats: Math.round(fatTarget * 0.2),
+              instructions: "Cook quinoa in milk, add chopped banana and almonds, sweeten with honey"
             },
             lunch: {
-              name: "Dal Bhat with Tarkari",
-              ingredients: "1 cup rice, 1 cup dal, mixed vegetables, pickle",
-              portions: "1 cup, 1 cup, 1 cup, 2 tbsp",
-              calories: 550,
-              protein: 25,
-              carbs: 85,
-              fats: 12,
-              instructions: "Cook rice, prepare dal with spices, steam vegetables, serve with pickle"
+              name: "Dal Bhat with Steamed Vegetables",
+              ingredients: "1 cup brown rice, 1 cup masoor dal, mixed steamed vegetables (saag, gobi, carrots), 1 tsp ghee",
+              portions: "1 cup, 1 cup, 1 cup, 1 tsp",
+              calories: Math.round(targetCalories * 0.4),
+              protein: Math.round(proteinTarget * 0.4),
+              carbs: Math.round(carbTarget * 0.4),
+              fats: Math.round(fatTarget * 0.4),
+              instructions: "Cook brown rice, prepare dal with turmeric and cumin, steam vegetables, serve with ghee"
             },
             snack: {
-              name: "Chiura with Yogurt",
-              ingredients: "1 cup chiura, 1/2 cup yogurt, 1 tsp sugar",
-              portions: "1 cup, 1/2 cup, 1 tsp",
-              calories: 200,
-              protein: 8,
-              carbs: 35,
-              fats: 3,
-              instructions: "Mix chiura with yogurt and sugar, serve chilled"
+              name: "Fresh Fruits with Nuts",
+              ingredients: "1 apple, 1 orange, 10 walnuts, 1 cup herbal tea",
+              portions: "1 medium, 1 medium, 10 pieces, 1 cup",
+              calories: Math.round(targetCalories * 0.15),
+              protein: Math.round(proteinTarget * 0.15),
+              carbs: Math.round(carbTarget * 0.15),
+              fats: Math.round(fatTarget * 0.15),
+              instructions: "Cut fruits into pieces, serve with walnuts and herbal tea"
             },
             dinner: {
-              name: "Momo with Soup",
-              ingredients: "8 pieces momo, vegetable soup, chutney",
-              portions: "8 pieces, 1 cup, 2 tbsp",
-              calories: 600,
-              protein: 30,
-              carbs: 70,
-              fats: 15,
-              instructions: "Steam momo, prepare soup, serve with chutney"
+              name: "Vegetable Soup with Boiled Egg",
+              ingredients: "Mixed vegetable soup (carrots, beans, spinach), 1 boiled egg, 1 slice whole grain bread",
+              portions: "1 cup, 1 piece, 1 slice",
+              calories: Math.round(targetCalories * 0.2),
+              protein: Math.round(proteinTarget * 0.25),
+              carbs: Math.round(carbTarget * 0.2),
+              fats: Math.round(fatTarget * 0.25),
+              instructions: "Prepare vegetable soup with ginger and garlic, boil egg, serve with whole grain bread"
             },
             dailyTotal: {
-              calories: 1750,
-              protein: 78,
-              carbs: 255,
-              fats: 38
+              calories: targetCalories,
+              protein: proteinTarget,
+              carbs: carbTarget,
+              fats: fatTarget
             }
           }
         }
