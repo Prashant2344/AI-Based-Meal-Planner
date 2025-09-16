@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const OpenAI = require('openai');
+const aiLogger = require('./utils/logger');
 
 dotenv.config();
 
@@ -19,8 +20,12 @@ const openai = new OpenAI({
 
 // BMI calculation endpoint
 app.post('/api/calculate-bmi', (req, res) => {
+  const startTime = Date.now();
+  
   try {
     const { weight, height, unit } = req.body;
+    
+    aiLogger.info('BMI calculation request', { weight, height, unit });
     
     let bmi;
     let heightInMeters;
@@ -51,7 +56,7 @@ app.post('/api/calculate-bmi', (req, res) => {
     const lowerWeight = 18.5 * (heightInMeters * heightInMeters);
     const upperWeight = 24.9 * (heightInMeters * heightInMeters);
     
-    res.json({
+    const result = {
       bmi: Math.round(bmi * 10) / 10,
       category,
       targetWeightRange: {
@@ -59,8 +64,21 @@ app.post('/api/calculate-bmi', (req, res) => {
         upper: Math.round(upperWeight * 10) / 10
       },
       heightInMeters: Math.round(heightInMeters * 100) / 100
+    };
+    
+    const processingTime = Date.now() - startTime;
+    aiLogger.info('BMI calculation completed', { 
+      result, 
+      processingTime: `${processingTime}ms` 
     });
+    
+    res.json(result);
   } catch (error) {
+    const processingTime = Date.now() - startTime;
+    aiLogger.error('BMI calculation failed', { 
+      error: error.message, 
+      processingTime: `${processingTime}ms` 
+    });
     res.status(400).json({ error: error.message });
   }
 });
@@ -107,6 +125,16 @@ app.post('/api/calculate-calories', (req, res) => {
 
 // Generate meal plan using AI
 app.post('/api/generate-meal-plan', async (req, res) => {
+  const startTime = Date.now();
+  const requestData = {
+    endpoint: '/api/generate-meal-plan',
+    method: 'POST',
+    body: req.body,
+    timestamp: new Date().toISOString(),
+    userAgent: req.get('User-Agent'),
+    ip: req.ip || req.connection.remoteAddress
+  };
+
   try {
     const { 
       dailyCalories, 
@@ -118,6 +146,13 @@ app.post('/api/generate-meal-plan', async (req, res) => {
       dietaryPreferences = [],
       allergies = []
     } = req.body;
+
+    aiLogger.info('Meal plan generation request received', {
+      userInfo: { weight, height, age, gender, activityLevel },
+      preferences: dietaryPreferences,
+      allergies: allergies,
+      dailyCalories
+    });
     
     const systemPrompt = `You are a professional nutritionist and meal planning expert specializing in healthy Nepalese cuisine. Create detailed, practical meal plans that are:
 
@@ -208,6 +243,12 @@ RESPONSE FORMAT (JSON only):
 
 IMPORTANT: Focus on healthy, nutritious Nepalese cuisine. Avoid fried foods, excessive oil, and processed ingredients.`;
 
+    aiLogger.info('Sending request to OpenAI', {
+      model: "gpt-4o-mini",
+      promptLength: userPrompt.length,
+      systemPromptLength: systemPrompt.length
+    });
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -217,6 +258,11 @@ IMPORTANT: Focus on healthy, nutritious Nepalese cuisine. Avoid fried foods, exc
     });
 
     const result = { text: response.choices[0].message.content };
+    
+    aiLogger.info('OpenAI response received', {
+      responseLength: result.text.length,
+      usage: response.usage || null
+    });
 
     // Parse the AI response
     let mealPlan;
@@ -225,10 +271,18 @@ IMPORTANT: Focus on healthy, nutritious Nepalese cuisine. Avoid fried foods, exc
       const jsonMatch = result.text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         mealPlan = JSON.parse(jsonMatch[0]);
+        aiLogger.info('AI response parsed successfully', {
+          hasValidJSON: true,
+          mealPlanKeys: Object.keys(mealPlan)
+        });
       } else {
         throw new Error('No valid JSON found in response');
       }
     } catch (parseError) {
+      aiLogger.warn('Failed to parse AI response JSON, using fallback', {
+        parseError: parseError.message,
+        responsePreview: result.text.substring(0, 200) + '...'
+      });
       // Fallback: create a healthy Nepalese meal plan structure
       const targetCalories = dailyCalories || 2000;
       const proteinTarget = Math.round(weight * 1.2); // 1.2g per kg body weight
@@ -295,8 +349,18 @@ IMPORTANT: Focus on healthy, nutritious Nepalese cuisine. Avoid fried foods, exc
       };
     }
 
+    const processingTime = Date.now() - startTime;
+    
+    // Log successful AI response
+    aiLogger.logAIResponse(requestData, mealPlan, processingTime);
+    
     res.json(mealPlan);
   } catch (error) {
+    const processingTime = Date.now() - startTime;
+    
+    // Log error
+    aiLogger.logAIResponse(requestData, null, processingTime, error);
+    
     console.error('Error generating meal plan:', error);
     res.status(500).json({ error: 'Failed to generate meal plan' });
   }
@@ -322,6 +386,61 @@ app.post('/api/generate-meal-chart', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Meal Planner API is running' });
+});
+
+// Log viewing endpoints for debugging
+app.get('/api/logs', (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const keyword = req.query.search || null;
+    
+    let logs;
+    if (keyword) {
+      logs = aiLogger.searchLogs(keyword, limit);
+    } else {
+      logs = aiLogger.getRecentLogs(limit);
+    }
+    
+    res.json({
+      success: true,
+      logs,
+      count: logs.length,
+      searchTerm: keyword
+    });
+  } catch (error) {
+    aiLogger.error('Failed to retrieve logs', { error: error.message });
+    res.status(500).json({ error: 'Failed to retrieve logs' });
+  }
+});
+
+// Get log statistics
+app.get('/api/logs/stats', (req, res) => {
+  try {
+    const logs = aiLogger.getRecentLogs(1000);
+    const stats = {
+      totalLogs: logs.length,
+      errorCount: logs.filter(log => log.level === 'error').length,
+      warningCount: logs.filter(log => log.level === 'warn').length,
+      infoCount: logs.filter(log => log.level === 'info').length,
+      debugCount: logs.filter(log => log.level === 'debug').length,
+      recentErrors: logs
+        .filter(log => log.level === 'error')
+        .slice(-5)
+        .map(log => ({
+          timestamp: log.timestamp,
+          message: log.message,
+          data: log.data
+        }))
+    };
+    
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    aiLogger.error('Failed to retrieve log statistics', { error: error.message });
+    res.status(500).json({ error: 'Failed to retrieve log statistics' });
+  }
 });
 
 app.listen(PORT, () => {

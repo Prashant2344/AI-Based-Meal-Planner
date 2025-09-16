@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import BMICalculator from './components/BMICalculator';
 import BMIResults from './components/BMIResults';
 import MealPlan from './components/MealPlan';
+import LogViewer from './components/LogViewer';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorAlert from './components/ErrorAlert';
 import { apiService } from './services/api';
 import { AppState, UserInfo, BMICalculation } from './types';
-import { Heart, Utensils, Target } from 'lucide-react';
+import { Heart, Utensils, Target, FileText } from 'lucide-react';
 import { generateSimpleMealPlanPDF } from './utils/pdfGenerator';
 import { demoMealPlan } from './data/demoMealPlan';
 
@@ -20,6 +21,7 @@ const App: React.FC = () => {
     loading: false,
     error: null,
   });
+  const [showLogs, setShowLogs] = useState(false);
 
   const handleBMICalculated = async (bmiResult: BMICalculation, userInfo: UserInfo) => {
     setAppState(prev => ({
@@ -206,14 +208,23 @@ const App: React.FC = () => {
                 <p className="text-sm text-gray-600">Personalized nutrition planning powered by AI</p>
               </div>
             </div>
-            {appState.currentStep !== 'bmi' && (
+            <div className="flex items-center gap-4">
               <button
-                onClick={resetApp}
-                className="text-gray-600 hover:text-gray-900 transition duration-200"
+                onClick={() => setShowLogs(!showLogs)}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition duration-200"
               >
-                Start Over
+                <FileText className="w-4 h-4" />
+                {showLogs ? 'Hide Logs' : 'View Logs'}
               </button>
-            )}
+              {appState.currentStep !== 'bmi' && (
+                <button
+                  onClick={resetApp}
+                  className="text-gray-600 hover:text-gray-900 transition duration-200"
+                >
+                  Start Over
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -221,8 +232,11 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Log Viewer */}
+          {showLogs && <LogViewer />}
+
           {/* Step Indicator */}
-          {renderStepIndicator()}
+          {!showLogs && renderStepIndicator()}
 
           {/* Error Alert */}
           {appState.error && (
@@ -248,7 +262,7 @@ const App: React.FC = () => {
           )}
 
           {/* BMI Calculator */}
-          {!appState.loading && appState.currentStep === 'bmi' && (
+          {!appState.loading && appState.currentStep === 'bmi' && !showLogs && (
             <BMICalculator
               onBMICalculated={handleBMICalculated}
               onError={handleError}
@@ -256,7 +270,7 @@ const App: React.FC = () => {
           )}
 
           {/* BMI Results */}
-          {!appState.loading && appState.currentStep === 'calories' && appState.bmiResult && (
+          {!appState.loading && appState.currentStep === 'calories' && appState.bmiResult && !showLogs && (
             <BMIResults
               bmiResult={appState.bmiResult}
               userInfo={appState.userInfo!}
@@ -268,7 +282,7 @@ const App: React.FC = () => {
           )}
 
           {/* Meal Plan */}
-          {!appState.loading && appState.currentStep === 'meal-plan' && appState.mealPlan && (
+          {!appState.loading && appState.currentStep === 'meal-plan' && appState.mealPlan && !showLogs && (
             <MealPlan
               mealPlan={appState.mealPlan}
               userInfo={appState.userInfo!}
